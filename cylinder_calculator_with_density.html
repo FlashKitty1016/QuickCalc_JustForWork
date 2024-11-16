@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圆柱计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .calculator {
+            max-width: 400px;
+            margin: auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .tabs {
+            display: flex;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>圆柱计算器</h2>
+        <div class="tabs">
+            <div class="tab active" id="tab1" onclick="switchTab(1)">计算重量</div>
+            <div class="tab" id="tab2" onclick="switchTab(2)">计算密度</div>
+        </div>
+
+        <div id="calcWeight" class="calc-section">
+            <div class="form-group">
+                <label for="diameter">直径 (mm):</label>
+                <input type="number" id="diameter" placeholder="请输入直径">
+            </div>
+            <div class="form-group">
+                <label for="length">长度 (mm):</label>
+                <input type="number" id="length" placeholder="请输入长度">
+            </div>
+            <div class="form-group">
+                <label for="density">密度 (g/cm³):</label>
+                <input type="number" id="density" step="0.01" placeholder="请输入密度">
+            </div>
+            <button onclick="calculateWeight()">计算重量</button>
+            <div class="result" id="resultWeight"></div>
+        </div>
+
+        <div id="calcDensity" class="calc-section" style="display:none;">
+            <div class="form-group">
+                <label for="diameter2">直径 (mm):</label>
+                <input type="number" id="diameter2" placeholder="请输入直径">
+            </div>
+            <div class="form-group">
+                <label for="length2">长度 (mm):</label>
+                <input type="number" id="length2" placeholder="请输入长度">
+            </div>
+            <div class="form-group">
+                <label for="weight">重量 (g):</label>
+                <input type="number" id="weight" placeholder="请输入重量">
+            </div>
+            <button onclick="calculateDensity()">计算密度</button>
+            <div class="result" id="resultDensity"></div>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签
+        function switchTab(tabIndex) {
+            if (tabIndex === 1) {
+                document.getElementById('tab1').classList.add('active');
+                document.getElementById('tab2').classList.remove('active');
+                document.getElementById('calcWeight').style.display = 'block';
+                document.getElementById('calcDensity').style.display = 'none';
+            } else {
+                document.getElementById('tab2').classList.add('active');
+                document.getElementById('tab1').classList.remove('active');
+                document.getElementById('calcDensity').style.display = 'block';
+                document.getElementById('calcWeight').style.display = 'none';
+            }
+        }
+
+        // 计算重量
+        function calculateWeight() {
+            const diameter = parseFloat(document.getElementById('diameter').value);
+            const length = parseFloat(document.getElementById('length').value);
+            const density = parseFloat(document.getElementById('density').value);
+
+            if (isNaN(diameter) || isNaN(length) || isNaN(density) || diameter <= 0 || length <= 0 || density <= 0) {
+                document.getElementById('resultWeight').textContent = "请输入有效的值";
+                return;
+            }
+
+            const radius = diameter / 2;
+            const volume = Math.PI * Math.pow(radius / 10, 2) * (length / 10);
+            const weight = volume * density;
+
+            document.getElementById('resultWeight').textContent = `圆柱重量: ${weight.toFixed(2)} g`;
+        }
+
+        // 计算密度
+        function calculateDensity() {
+            const diameter = parseFloat(document.getElementById('diameter2').value);
+            const length = parseFloat(document.getElementById('length2').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+
+            if (isNaN(diameter) || isNaN(length) || isNaN(weight) || diameter <= 0 || length <= 0 || weight <= 0) {
+                document.getElementById('resultDensity').textContent = "请输入有效的值";
+                return;
+            }
+
+            const radius = diameter / 2;
+            const volume = Math.PI * Math.pow(radius / 10, 2) * (length / 10);
+            const density = weight / volume;
+
+            document.getElementById('resultDensity').textContent = `圆柱密度: ${density.toFixed(2)} g/cm³`;
+        }
+    </script>
+</body>
+</html>
