@@ -8,10 +8,15 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f9f9f9;
         }
         .calculator {
             max-width: 400px;
             margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .form-group {
             margin-bottom: 15px;
@@ -19,19 +24,25 @@
         label {
             display: block;
             margin-bottom: 5px;
+            font-size: 14px;
         }
         input {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
         }
         button {
-            padding: 10px 15px;
+            width: 100%;
+            padding: 10px;
             background-color: #007BFF;
             color: white;
             border: none;
             cursor: pointer;
             border-radius: 5px;
+            font-size: 16px;
         }
         button:hover {
             background-color: #0056b3;
@@ -39,10 +50,11 @@
         .result {
             margin-top: 15px;
             font-weight: bold;
+            font-size: 16px;
         }
         .tabs {
             display: flex;
-            cursor: pointer;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
         .tab {
@@ -51,11 +63,25 @@
             padding: 10px;
             background-color: #f0f0f0;
             border: 1px solid #ddd;
+            border-radius: 4px;
             margin-right: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .tab:last-child {
+            margin-right: 0;
         }
         .tab.active {
             background-color: #007BFF;
             color: white;
+        }
+        @media (max-width: 480px) {
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -78,7 +104,7 @@
             </div>
             <div class="form-group">
                 <label for="density">密度 (g/cm³):</label>
-                <input type="number" id="density" step="0.01" placeholder="请输入密度">
+                <input type="number" id="density" step="0.0001" placeholder="请输入密度">
             </div>
             <button onclick="calculateWeight()">计算重量</button>
             <div class="result" id="resultWeight"></div>
@@ -133,7 +159,7 @@
             const volume = Math.PI * Math.pow(radius / 10, 2) * (length / 10);
             const weight = volume * density;
 
-            document.getElementById('resultWeight').textContent = `圆柱重量: ${weight.toFixed(2)} g`;
+            document.getElementById('resultWeight').textContent = `圆柱重量: ${weight.toFixed(4)} g`;
         }
 
         // 计算密度
@@ -151,7 +177,7 @@
             const volume = Math.PI * Math.pow(radius / 10, 2) * (length / 10);
             const density = weight / volume;
 
-            document.getElementById('resultDensity').textContent = `圆柱密度: ${density.toFixed(2)} g/cm³`;
+            document.getElementById('resultDensity').textContent = `圆柱密度: ${density.toFixed(4)} g/cm³`;
         }
     </script>
 </body>
