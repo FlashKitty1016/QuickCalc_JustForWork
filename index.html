@@ -34,6 +34,19 @@
             border-radius: 4px;
             font-size: 14px;
         }
+        .split-input {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .split-input input {
+            width: 45%;
+        }
+        .split-input .dot {
+            width: 10%;
+            text-align: center;
+            font-size: 20px;
+        }
         button {
             width: 100%;
             padding: 10px;
@@ -104,7 +117,11 @@
             </div>
             <div class="form-group">
                 <label for="density">密度 (g/cm³):</label>
-                <input type="number" id="density" step="0.0001" placeholder="请输入密度">
+                <div class="split-input">
+                    <input type="number" id="densityInteger" value="0" placeholder="整数部分" min="0" step="1">
+                    <div class="dot">.</div>
+                    <input type="number" id="densityDecimal" value="16" placeholder="小数部分" step="0.0001">
+                </div>
             </div>
             <button onclick="calculateWeight()">计算重量</button>
             <div class="result" id="resultWeight"></div>
@@ -148,7 +165,9 @@
         function calculateWeight() {
             const diameter = parseFloat(document.getElementById('diameter').value);
             const length = parseFloat(document.getElementById('length').value);
-            const density = parseFloat(document.getElementById('density').value);
+            const densityInteger = parseFloat(document.getElementById('densityInteger').value);
+            const densityDecimal = parseFloat(document.getElementById('densityDecimal').value);
+            const density = densityInteger + (densityDecimal / Math.pow(10, 4)); // 拼接密度
 
             if (isNaN(diameter) || isNaN(length) || isNaN(density) || diameter <= 0 || length <= 0 || density <= 0) {
                 document.getElementById('resultWeight').textContent = "请输入有效的值";
