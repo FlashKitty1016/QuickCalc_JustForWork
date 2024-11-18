@@ -26,7 +26,7 @@
             cursor: pointer;
             border: 1px solid #ccc;
             background-color: #e0e0e0;
-            border-radius: 8px 8px 0 0; /* 顶部圆角 */
+            border-radius: 8px 8px 0 0;
         }
         .tab button.active {
             background-color: #007BFF;
@@ -37,7 +37,7 @@
             padding: 20px;
             background-color: white;
             border: 1px solid #ccc;
-            border-radius: 0 0 8px 8px; /* 底部圆角 */
+            border-radius: 0 0 8px 8px;
         }
         .tabcontent.active {
             display: block;
@@ -48,7 +48,7 @@
             margin: 5px 0;
             font-size: 16px;
             border: 1px solid #ccc;
-            border-radius: 8px; /* 输入框圆角 */
+            border-radius: 8px;
             box-sizing: border-box;
         }
         .density-container {
@@ -60,7 +60,7 @@
             width: 30%;
             font-size: 14px;
             text-align: center;
-            border-radius: 8px; /* 圆角 */
+            border-radius: 8px;
         }
         .density-dot {
             font-size: 18px;
@@ -70,7 +70,7 @@
             width: 65%;
             font-size: 16px;
             text-align: center;
-            border-radius: 8px; /* 圆角 */
+            border-radius: 8px;
         }
         button.calculate {
             width: 100%;
@@ -81,7 +81,7 @@
             background-color: #007BFF;
             color: white;
             border: none;
-            border-radius: 8px; /* 按钮圆角 */
+            border-radius: 8px;
             transition: background-color 0.3s ease;
         }
         button.calculate:hover {
@@ -105,8 +105,11 @@
     <!-- 计算重量 -->
     <div id="weight" class="tabcontent active">
         <h3>计算重量 (g)</h3>
-        <label for="diameter">直径 (mm):</label>
-        <input type="number" id="diameter" placeholder="请输入直径">
+        <label for="diameter">外径 (mm):</label>
+        <input type="number" id="diameter" placeholder="请输入外径">
+        
+        <label for="inner-diameter">内径 (mm):</label>
+        <input type="number" id="inner-diameter" placeholder="请输入内径" value="0">
         
         <label for="length">长度 (mm):</label>
         <input type="number" id="length" placeholder="请输入长度">
@@ -125,8 +128,11 @@
     <!-- 计算密度 -->
     <div id="density" class="tabcontent">
         <h3>计算密度 (g/cm³)</h3>
-        <label for="diameter2">直径 (mm):</label>
-        <input type="number" id="diameter2" placeholder="请输入直径">
+        <label for="diameter2">外径 (mm):</label>
+        <input type="number" id="diameter2" placeholder="请输入外径">
+        
+        <label for="inner-diameter2">内径 (mm):</label>
+        <input type="number" id="inner-diameter2" placeholder="请输入内径" value="0">
         
         <label for="length2">长度 (mm):</label>
         <input type="number" id="length2" placeholder="请输入长度">
@@ -157,14 +163,18 @@
         // 计算重量
         function calculateWeight() {
             const diameter = parseFloat(document.getElementById("diameter").value);
+            const innerDiameter = parseFloat(document.getElementById("inner-diameter").value) || 0;
             const length = parseFloat(document.getElementById("length").value);
             const densityInteger = parseFloat(document.getElementById("density-integer").value) || 0;
             const densityDecimal = parseFloat("0." + (document.getElementById("density-decimal").value || 0));
             const density = densityInteger + densityDecimal;
 
             if (diameter && length && density) {
-                const radius = diameter / 20; // 将直径转换为 cm
-                const volume = Math.PI * radius * radius * (length / 10); // 计算体积
+                const outerRadius = diameter / 20; // 外径转换为 cm
+                const innerRadius = innerDiameter / 20; // 内径转换为 cm
+                const outerVolume = Math.PI * outerRadius * outerRadius * (length / 10); // 外柱体积
+                const innerVolume = Math.PI * innerRadius * innerRadius * (length / 10); // 内孔体积
+                const volume = outerVolume - innerVolume; // 实际体积
                 const weight = volume * density; // 计算重量
                 document.getElementById("weight-result").innerText = `重量: ${weight.toFixed(4)} g`;
             } else {
@@ -175,12 +185,16 @@
         // 计算密度
         function calculateDensity() {
             const diameter = parseFloat(document.getElementById("diameter2").value);
+            const innerDiameter = parseFloat(document.getElementById("inner-diameter2").value) || 0;
             const length = parseFloat(document.getElementById("length2").value);
             const weight = parseFloat(document.getElementById("weight2").value);
 
             if (diameter && length && weight) {
-                const radius = diameter / 20; // 将直径转换为 cm
-                const volume = Math.PI * radius * radius * (length / 10); // 计算体积
+                const outerRadius = diameter / 20; // 外径转换为 cm
+                const innerRadius = innerDiameter / 20; // 内径转换为 cm
+                const outerVolume = Math.PI * outerRadius * outerRadius * (length / 10); // 外柱体积
+                const innerVolume = Math.PI * innerRadius * innerRadius * (length / 10); // 内孔体积
+                const volume = outerVolume - innerVolume; // 实际体积
                 const density = weight / volume; // 计算密度
                 document.getElementById("density-result").innerText = `密度: ${density.toFixed(4)} g/cm³`;
             } else {
