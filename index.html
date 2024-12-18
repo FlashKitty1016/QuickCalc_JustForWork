@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>圆柱体计算器</title>
+    <title>计算器</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 400px;
+            max-width: 450px;
             margin: auto;
             padding: 20px;
             background-color: #f2f2f2;
@@ -56,18 +56,27 @@
             align-items: center;
             gap: 5px;
         }
+
+		#unit-price-integer {
+            width: 30%;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        #unit-price-decimal {
+            width: 70%;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 8px;
+        }
         #density-integer {
             width: 30%;
             font-size: 14px;
             text-align: center;
             border-radius: 8px;
         }
-        .density-dot {
-            font-size: 18px;
-            font-weight: bold;
-        }
         #density-decimal {
-            width: 65%;
+            width: 70%;
             font-size: 16px;
             text-align: center;
             border-radius: 8px;
@@ -78,13 +87,47 @@
             font-weight: bold;
             margin-top: 20px;
         }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .radio-group {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .radio-group label {
+            margin-right: 20px;
+        }
+        .radio-group input {
+            margin-right: 5px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .density-input, .unit-price-input {
+            display: flex;
+            align-items: center;
+        }
+        .density-input input, .unit-price-input input {
+            width: 60px;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
-    <h2>圆柱体计算器</h2>
+    <h2>计算器</h2>
     <div class="tab">
         <button class="active" onclick="openTab(event, 'weight')">计算重量</button>
         <button onclick="openTab(event, 'density')">计算密度</button>
+        <button onclick="openTab(event, 'profit-calculator')">毛利计算器</button> <!-- 新增按钮 -->
     </div>
 
     <!-- 计算重量 -->
@@ -127,6 +170,71 @@
         <div class="result" id="density-result">密度: 0.0000 g/cm³</div>
     </div>
 
+    <!-- 毛利计算器 (添加为第三个标签页) -->
+    <div id="profit-calculator" class="tabcontent">
+        <h3>毛利计算器</h3>
+
+        <div class="form-group">
+            <label for="unit-price">单价（元/根）：</label>
+            <div class="unit-price-input">
+                <input type="number" id="unit-price-integer" value="0" placeholder="整数部分" min="0" required>
+                <span class="density-dot">.</span>
+                <input type="number" id="unit-price-decimal" value="0" placeholder="小数部分" min="0" max="99" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="quantity">数量（根）：</label>
+            <input type="number" id="quantity" value="0" placeholder="请输入数量" required>
+        </div>
+        <div class="form-group">
+            <label for="outer-diameter">外径 (mm):</label>
+            <input type="number" id="outer-diameter" value="0" placeholder="请输入外径" required>
+        </div>
+        <div class="form-group">
+            <label for="inner-diameter">内径 (mm):</label>
+            <input type="number" id="inner-diameter" value="0" placeholder="请输入内径" required>
+        </div>
+        <div class="form-group">
+            <label for="length">长度 (mm):</label>
+            <input type="number" id="length" value="0" placeholder="请输入长度" required>
+        </div>
+        <div class="form-group">
+            <label for="density">密度 (g/cm³)：</label>
+            <div class="density-input">
+                <input type="number" id="density-integer" value="0" placeholder="整数部分" min="0" required>
+                <span class="density-dot">.</span>
+                <input type="number" id="density-decimal" value="160" placeholder="小数部分" min="0" max="999" required>
+            </div>
+        </div>
+
+        <!-- 是否含税 -->
+        <div class="form-group radio-group">
+            <label>是否含税：</label>
+            <label><input type="radio" name="tax" value="yes" checked> 是</label>
+            <input type="number" id="tax-rate" value="10" style="width: 60px;" step="0.1">%
+            <label><input type="radio" name="tax" value="no"> 否</label>
+        </div>
+
+        <!-- 是否含提成 -->
+        <div class="form-group radio-group">
+            <label>是否含提成：</label>
+            <label><input type="radio" name="commission" value="yes" checked> 是</label>
+            <input type="number" id="commission-rate" value="10" style="width: 60px;" step="0.1">%
+            <label><input type="radio" name="commission" value="no"> 否</label>
+        </div>
+
+        <!-- 颜色选择 -->
+        <div class="form-group radio-group">
+            <label>颜色：</label>
+            <label><input type="radio" name="color" value="white" checked> 白</label>
+            <label><input type="radio" name="color" value="black"> 黑</label>
+            <label><input type="radio" name="color" value="other"> 其他</label>
+            <input type="number" id="other-color-price" value="35" style="width: 80px;">
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
     <script>
         // 标签切换
         function openTab(event, tabName) {
@@ -143,46 +251,76 @@
             event.currentTarget.classList.add("active");
         }
 
-        // 计算重量
-        function calculateWeight() {
-            const diameter = parseFloat(document.getElementById("diameter").value);
-            const innerDiameter = parseFloat(document.getElementById("inner-diameter").value) || 0;
-            const length = parseFloat(document.getElementById("length").value);
-            const densityInteger = parseFloat(document.getElementById("density-integer").value) || 0;
-            const densityDecimal = parseFloat("0." + (document.getElementById("density-decimal").value || 0));
-            const density = densityInteger + densityDecimal;
+        // 监听所有输入框的变化，实时计算毛利
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculateProfit);
+        });
 
-            if (diameter > 0 && length > 0 && density > 0) {
-                const outerRadius = diameter / 20; // 外径转换为 cm
-                const innerRadius = innerDiameter / 20; // 内径转换为 cm
-                const outerVolume = Math.PI * outerRadius * outerRadius * (length / 10); // 外柱体积
-                const innerVolume = Math.PI * innerRadius * innerRadius * (length / 10); // 内孔体积
-                const volume = outerVolume - innerVolume; // 实际体积
-                const weight = volume * density; // 计算重量
-                document.getElementById("weight-result").innerText = `重量: ${weight.toFixed(4)} g`;
-            } else {
-                document.getElementById("weight-result").innerText = "重量: 0.0000 g";
+        // 页面加载时初始化计算一次
+        window.onload = calculateProfit;
+
+        function calculateProfit() {
+            const innerDiameter = parseFloat(document.getElementById('inner-diameter').value);
+            const length = parseFloat(document.getElementById('length').value);
+            const unitPriceInteger = parseInt(document.getElementById('unit-price-integer').value) || 0;
+            const unitPriceDecimal = parseInt(document.getElementById('unit-price-decimal').value) || 0;
+            const unitPrice = unitPriceInteger + (unitPriceDecimal / (unitPriceDecimal < 10 ? 10 : (unitPriceDecimal < 100 ? 100 : 1000))); // 单价转换为元
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const outerDiameter = parseFloat(document.getElementById('outer-diameter').value);
+            
+            // 密度分为整数和小数部分
+            const densityInteger = parseInt(document.getElementById('density-integer').value) || 0;
+            const densityDecimal = parseInt(document.getElementById('density-decimal').value) || 0;
+            const density = densityInteger + densityDecimal / 1000; // 转换为g/cm³
+
+            const taxRate = parseFloat(document.getElementById('tax-rate').value) / 100;
+            const commissionRate = parseFloat(document.getElementById('commission-rate').value) / 100;
+
+            // 颜色和价格处理
+            let color = document.querySelector('input[name="color"]:checked').value;
+            let colorPrice = 0;
+
+            if (color === "white") {
+                colorPrice = 15; // 15元/kg
+            } else if (color === "black") {
+                colorPrice = 16; // 16元/kg
+            } else if (color === "other") {
+                colorPrice = parseFloat(document.getElementById('other-color-price').value) || 35; // 35元/kg
             }
-        }
 
-        // 计算密度
-        function calculateDensity() {
-            const diameter = parseFloat(document.getElementById("diameter2").value);
-            const innerDiameter = parseFloat(document.getElementById("inner-diameter2").value) || 0;
-            const length = parseFloat(document.getElementById("length2").value);
-            const weight = parseFloat(document.getElementById("weight2").value);
+            // 计算单根重量 (单位: g)
+            const radiusOuter = outerDiameter / 2 / 10; // 转换为cm
+            const radiusInner = innerDiameter / 2 / 10; // 转换为cm
+            const volume = Math.PI * (Math.pow(radiusOuter, 2) - Math.pow(radiusInner, 2)) * length / 10; // cm³ (将mm转换为cm)
+            const weightPerUnit = volume * density; // g
 
-            if (diameter > 0 && length > 0 && weight > 0) {
-                const outerRadius = diameter / 20; // 外径转换为 cm
-                const innerRadius = innerDiameter / 20; // 内径转换为 cm
-                const outerVolume = Math.PI * outerRadius * outerRadius * (length / 10); // 外柱体积
-                const innerVolume = Math.PI * innerRadius * innerRadius * (length / 10); // 内孔体积
-                const volume = outerVolume - innerVolume; // 实际体积
-                const density = weight / volume; // 计算密度
-                document.getElementById("density-result").innerText = `密度: ${density.toFixed(4)} g/cm³`;
-            } else {
-                document.getElementById("density-result").innerText = "密度: 0.0000 g/cm³";
+            // 计算材料成本 (每千克的单价转换为每克的单价)
+            const materialCostPerUnit = (colorPrice / 1000) * weightPerUnit; // 将价格转化为元/g
+            const materialCost = materialCostPerUnit * quantity;
+
+            // 计算税前总价
+            let totalPriceBeforeTax = unitPrice * quantity;
+            if (document.querySelector('input[name="tax"]:checked').value === "yes") {
+                totalPriceBeforeTax = (unitPrice / (1 + taxRate)) * quantity;  // 去除税率
             }
+
+            // 计算除去提成后的总价
+            let totalPriceAfterCommission = totalPriceBeforeTax;
+            if (document.querySelector('input[name="commission"]:checked').value === "yes") {
+                totalPriceAfterCommission = totalPriceBeforeTax * (1 - commissionRate);  // 提成需要在去税之后计算
+            }
+
+            // 毛利计算
+            const grossProfit = totalPriceAfterCommission - materialCost;
+
+            // 显示结果，保留四位小数
+            document.getElementById('result').innerHTML = `
+                <p>单根重量: ${weightPerUnit.toFixed(4)} g</p>
+                <p>材料成本: ¥${materialCost.toFixed(4)}</p>
+                <p>税前总价（去除税）: ¥${totalPriceBeforeTax.toFixed(4)}</p>
+                <p>除去提成后的总价: ¥${totalPriceAfterCommission.toFixed(4)}</p>
+                <p>毛利: ¥${grossProfit.toFixed(4)}</p>
+            `;
         }
     </script>
 </body>
