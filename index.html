@@ -1,189 +1,736 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>圆柱体计算器</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background-color: #f2f2f2;
-        }
-        h2 {
-            text-align: center;
-        }
-        .tab {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .tab button {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            background-color: #e0e0e0;
-            border-radius: 8px 8px 0 0;
-        }
-        .tab button.active {
-            background-color: #007BFF;
-            color: white;
-        }
-        .tabcontent {
-            display: none;
-            padding: 20px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 0 0 8px 8px;
-        }
-        .tabcontent.active {
-            display: block;
-        }
-        input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-        .density-container {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        #density-integer {
-            width: 30%;
-            font-size: 14px;
-            text-align: center;
-            border-radius: 8px;
-        }
-        .density-dot {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        #density-decimal {
-            width: 65%;
-            font-size: 16px;
-            text-align: center;
-            border-radius: 8px;
-        }
-        .result {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickCalc</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      color-scheme: light;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d9e0ea;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #dc2626;
+      --result-bg: #eef4ff;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #e8f0ff, var(--bg) 45%);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    main {
+      width: min(100%, 640px);
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid rgba(217, 224, 234, 0.9);
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(31, 41, 55, 0.12);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 24px 24px 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      text-align: center;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 0 24px 20px;
+    }
+
+    .tab-button {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: #f8fafc;
+      color: var(--text);
+      transition: 0.15s ease;
+    }
+
+    .tab-button.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .panel {
+      display: none;
+      padding: 0 24px 24px;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .two-column {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      font-weight: 700;
+    }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .unit,
+    .hint {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      outline: none;
+      background: #fff;
+      transition: 0.15s ease;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+    }
+
+    .density-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .density-input #weightDensityInteger {
+      flex: 0 0 30%;
+      text-align: center;
+    }
+
+    .density-input #weightDensityDecimal {
+      flex: 1;
+      text-align: center;
+    }
+
+    .density-dot {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    input:disabled {
+      background: #eef0f4;
+      color: var(--muted);
+    }
+
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+      white-space: pre;
+    }
+
+    .result {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--result-bg);
+      text-align: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      word-break: break-all;
+    }
+
+    .error {
+      min-height: 22px;
+      margin-top: 10px;
+      color: var(--danger);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .actions.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    button.action {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: var(--text);
+    }
+
+    button.action.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 12px;
+      }
+
+      header,
+      .tabs,
+      .panel {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .tabs,
+      .two-column,
+      .actions,
+      .actions.three {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h2>圆柱体计算器</h2>
-    <div class="tab">
-        <button class="active" onclick="openTab(event, 'weight')">计算重量</button>
-        <button onclick="openTab(event, 'density')">计算密度</button>
+  <main>
+    <header>
+      <h1>QuickCalc</h1>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-button active" type="button" data-tab="weight" role="tab" aria-selected="true">计算重量</button>
+      <button class="tab-button" type="button" data-tab="density" role="tab" aria-selected="false">计算密度</button>
+      <button class="tab-button" type="button" data-tab="random" role="tab" aria-selected="false">随机数</button>
     </div>
 
-    <!-- 计算重量 -->
-    <div id="weight" class="tabcontent active">
-        <h3>计算重量 (g)</h3>
-        <label for="diameter">外径 (mm):</label>
-        <input type="number" id="diameter" placeholder="请输入外径" value="0" oninput="calculateWeight()">
-        
-        <label for="inner-diameter">内径 (mm):</label>
-        <input type="number" id="inner-diameter" placeholder="请输入内径" value="0" oninput="calculateWeight()">
-        
-        <label for="length">长度 (mm):</label>
-        <input type="number" id="length" placeholder="请输入长度" value="0" oninput="calculateWeight()">
-        
-        <label for="density">密度 (g/cm³):</label>
-        <div class="density-container">
-            <input type="number" id="density-integer" placeholder="整数" value="0" oninput="calculateWeight()">
+    <section id="weight" class="panel active" role="tabpanel">
+      <div class="form-grid">
+        <label>
+          外径 <span class="unit">mm</span>
+          <input id="weightDiameter" type="number" min="0" step="any" inputmode="decimal" value="0">
+        </label>
+
+        <label>
+          内径 <span class="unit">mm，可为 0</span>
+          <input id="weightInnerDiameter" type="number" min="0" step="any" inputmode="decimal" value="0">
+        </label>
+
+        <label>
+          长度 <span class="unit">mm</span>
+          <input id="weightLength" type="number" min="0" step="any" inputmode="decimal" value="0">
+        </label>
+
+        <label>
+          密度 <span class="unit">g/cm³</span>
+          <div class="density-input">
+            <input id="weightDensityInteger" type="number" min="0" step="1" inputmode="numeric" value="0" aria-label="密度整数部分">
             <span class="density-dot">.</span>
-            <input type="number" id="density-decimal" placeholder="小数" value="16" oninput="calculateWeight()">
+            <input id="weightDensityDecimal" type="number" min="0" step="1" inputmode="numeric" value="068" aria-label="密度小数部分">
+          </div>
+        </label>
+      </div>
+
+      <div class="result" id="weightResult">重量：0.0000 g</div>
+      <div class="error" id="weightError"></div>
+      <div class="actions">
+        <button class="action primary" type="button" data-copy-result="weightResult">复制结果</button>
+        <button class="action" type="button" data-reset="weight">清空</button>
+      </div>
+    </section>
+
+    <section id="density" class="panel" role="tabpanel">
+      <div class="form-grid">
+        <label>
+          外径 <span class="unit">mm</span>
+          <input id="densityDiameter" type="number" min="0" step="any" inputmode="decimal" value="0">
+        </label>
+
+        <label>
+          内径 <span class="unit">mm，可为 0</span>
+          <input id="densityInnerDiameter" type="number" min="0" step="any" inputmode="decimal" value="0">
+        </label>
+
+        <label>
+          长度 <span class="unit">mm</span>
+          <input id="densityLength" type="number" min="0" step="any" inputmode="decimal" value="0">
+        </label>
+
+        <label>
+          重量 <span class="unit">g</span>
+          <input id="densityWeight" type="number" min="0" step="any" inputmode="decimal" value="0">
+        </label>
+      </div>
+
+      <div class="result" id="densityResult">密度：0.0000 g/cm³</div>
+      <div class="error" id="densityError"></div>
+      <div class="actions">
+        <button class="action primary" type="button" data-copy-result="densityResult">复制结果</button>
+        <button class="action" type="button" data-reset="density">清空</button>
+      </div>
+    </section>
+
+    <section id="random" class="panel" role="tabpanel">
+      <div class="form-grid two-column">
+        <label>
+          数值类型
+          <select id="randomNumberType">
+            <option value="integer">整数</option>
+            <option value="float">浮点数</option>
+          </select>
+        </label>
+
+        <div>
+          <label class="inline">
+            <input id="randomUnique" type="checkbox">
+            唯一
+          </label>
+          <div class="hint">勾选后生成结果不会重复；如果范围太小，可能无法生成指定数量。</div>
         </div>
 
-        <div class="result" id="weight-result">重量: 0.0000 g</div>
-    </div>
+        <label>
+          小数点位数
+          <input id="randomDecimalPlaces" type="number" min="0" max="12" step="1" value="2" disabled>
+        </label>
 
-    <!-- 计算密度 -->
-    <div id="density" class="tabcontent">
-        <h3>计算密度 (g/cm³)</h3>
-        <label for="diameter2">外径 (mm):</label>
-        <input type="number" id="diameter2" placeholder="请输入外径" value="0" oninput="calculateDensity()">
-        
-        <label for="inner-diameter2">内径 (mm):</label>
-        <input type="number" id="inner-diameter2" placeholder="请输入内径" value="0" oninput="calculateDensity()">
-        
-        <label for="length2">长度 (mm):</label>
-        <input type="number" id="length2" placeholder="请输入长度" value="0" oninput="calculateDensity()">
-        
-        <label for="weight2">重量 (g):</label>
-        <input type="number" id="weight2" placeholder="请输入重量" value="0" oninput="calculateDensity()">
+        <label>
+          生成数量
+          <input id="randomCount" type="number" min="1" step="1" value="10">
+        </label>
 
-        <div class="result" id="density-result">密度: 0.0000 g/cm³</div>
-    </div>
+        <label>
+          基准值
+          <input id="randomBaseValue" type="number" step="any" value="100">
+        </label>
 
-    <script>
-        // 标签切换
-        function openTab(event, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove("active");
-            }
-            tablinks = document.getElementsByClassName("tab")[0].children;
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            document.getElementById(tabName).classList.add("active");
-            event.currentTarget.classList.add("active");
+        <div>
+          <label class="inline">
+            <input id="randomSameOffset" type="checkbox" checked>
+            正负偏移相同
+          </label>
+          <div class="hint">勾选后，负偏移自动等于正偏移。</div>
+        </div>
+
+        <label>
+          正偏移
+          <input id="randomPositiveOffset" type="number" min="0" step="any" value="10">
+        </label>
+
+        <label>
+          负偏移
+          <input id="randomNegativeOffset" type="number" min="0" step="any" value="10" disabled>
+        </label>
+
+        <label class="full">
+          输出方向
+          <select id="randomOutputDirection">
+            <option value="row" selected>行</option>
+            <option value="column">列</option>
+          </select>
+        </label>
+
+        <label class="full">
+          输出
+          <textarea id="randomOutput" placeholder="生成结果会显示在这里，可直接粘贴到 Excel 单元格"></textarea>
+          <span class="hint">行输出用 Tab 分隔，列输出用换行分隔，可直接粘贴到 Excel。</span>
+        </label>
+      </div>
+
+      <div class="error" id="randomError"></div>
+      <div class="actions three">
+        <button class="action primary" type="button" id="randomGenerate">生成</button>
+        <button class="action" type="button" id="randomCopy">复制结果</button>
+        <button class="action" type="button" id="randomClear">清空</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = 'quickCalcJustForWork';
+    const tabs = [...document.querySelectorAll('.tab-button')];
+    const panels = [...document.querySelectorAll('.panel')];
+    const stateControls = [...document.querySelectorAll('input, select')];
+    const calcControls = ['weightDiameter', 'weightInnerDiameter', 'weightLength', 'weightDensityInteger', 'weightDensityDecimal', 'densityDiameter', 'densityInnerDiameter', 'densityLength', 'densityWeight'].map((id) => document.getElementById(id));
+    const randomControls = ['randomNumberType', 'randomUnique', 'randomDecimalPlaces', 'randomCount', 'randomBaseValue', 'randomSameOffset', 'randomPositiveOffset', 'randomNegativeOffset', 'randomOutputDirection'].map((id) => document.getElementById(id));
+
+    function numberValue(id) {
+      const value = Number(document.getElementById(id).value);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function cylinderVolume(diameter, innerDiameter, length) {
+      if (diameter <= 0 || length <= 0) {
+        return 0;
+      }
+
+      if (innerDiameter < 0 || innerDiameter >= diameter) {
+        return NaN;
+      }
+
+      const outerRadius = diameter / 20;
+      const innerRadius = innerDiameter / 20;
+      return Math.PI * (outerRadius ** 2 - innerRadius ** 2) * (length / 10);
+    }
+
+    function setError(id, text) {
+      document.getElementById(id).textContent = text;
+    }
+
+    function calculateWeight() {
+      const diameter = numberValue('weightDiameter');
+      const innerDiameter = numberValue('weightInnerDiameter');
+      const length = numberValue('weightLength');
+      const density = numberValue('weightDensityInteger') + Number('0.' + (document.getElementById('weightDensityDecimal').value || '0'));
+      const volume = cylinderVolume(diameter, innerDiameter, length);
+      const result = document.getElementById('weightResult');
+
+      setError('weightError', '');
+
+      if (Number.isNaN(volume)) {
+        result.textContent = '重量：0.0000 g';
+        setError('weightError', '内径必须小于外径');
+        return;
+      }
+
+      if (volume <= 0 || density <= 0) {
+        result.textContent = '重量：0.0000 g';
+        return;
+      }
+
+      result.textContent = `重量：${(volume * density).toFixed(4)} g`;
+    }
+
+    function calculateDensity() {
+      const diameter = numberValue('densityDiameter');
+      const innerDiameter = numberValue('densityInnerDiameter');
+      const length = numberValue('densityLength');
+      const weight = numberValue('densityWeight');
+      const volume = cylinderVolume(diameter, innerDiameter, length);
+      const result = document.getElementById('densityResult');
+
+      setError('densityError', '');
+
+      if (Number.isNaN(volume)) {
+        result.textContent = '密度：0.0000 g/cm³';
+        setError('densityError', '内径必须小于外径');
+        return;
+      }
+
+      if (volume <= 0 || weight <= 0) {
+        result.textContent = '密度：0.0000 g/cm³';
+        return;
+      }
+
+      result.textContent = `密度：${(weight / volume).toFixed(4)} g/cm³`;
+    }
+
+    function calculateAll() {
+      calculateWeight();
+      calculateDensity();
+      saveState();
+    }
+
+    function switchTab(tabName) {
+      tabs.forEach((button) => {
+        const active = button.dataset.tab === tabName;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', String(active));
+      });
+
+      panels.forEach((panel) => {
+        panel.classList.toggle('active', panel.id === tabName);
+      });
+
+      saveState();
+    }
+
+    function saveState() {
+      const data = Object.fromEntries(stateControls.map((control) => [
+        control.id,
+        control.type === 'checkbox' ? control.checked : control.value,
+      ]));
+      const activeTab = tabs.find((button) => button.classList.contains('active'))?.dataset.tab || 'weight';
+      localStorage.setItem(storageKey, JSON.stringify({ ...data, activeTab }));
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) {
+        return;
+      }
+
+      try {
+        const data = JSON.parse(raw);
+        stateControls.forEach((control) => {
+          if (!(control.id in data)) {
+            return;
+          }
+
+          if (control.type === 'checkbox') {
+            control.checked = Boolean(data[control.id]);
+          } else {
+            control.value = data[control.id];
+          }
+        });
+        switchTab(data.activeTab || 'weight');
+      } catch {
+        localStorage.removeItem(storageKey);
+      }
+    }
+
+    function resetPanel(panelName) {
+      const panel = document.getElementById(panelName);
+      panel.querySelectorAll('input').forEach((input) => {
+        if (input.type === 'checkbox') {
+          input.checked = input.id === 'randomSameOffset';
+        } else if (input.id === 'weightDensityDecimal') {
+          input.value = '068';
+        } else {
+          input.value = '0';
+        }
+      });
+      syncRandomControls();
+      calculateAll();
+    }
+
+    async function copyText(text) {
+      if (!text) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+      }
+    }
+
+    function copyResult(resultId) {
+      const text = document.getElementById(resultId).textContent.replace(/^[^：]+：/, '').trim();
+      copyText(text);
+    }
+
+    function syncRandomControls() {
+      const numberType = document.getElementById('randomNumberType');
+      const decimalPlaces = document.getElementById('randomDecimalPlaces');
+      const sameOffset = document.getElementById('randomSameOffset');
+      const positiveOffset = document.getElementById('randomPositiveOffset');
+      const negativeOffset = document.getElementById('randomNegativeOffset');
+
+      decimalPlaces.disabled = numberType.value === 'integer';
+      negativeOffset.disabled = sameOffset.checked;
+      if (sameOffset.checked) {
+        negativeOffset.value = positiveOffset.value;
+      }
+      saveState();
+    }
+
+    function readNumber(input, name) {
+      const value = Number(input.value);
+      if (!Number.isFinite(value)) {
+        throw new Error(`${name} 不是有效数字`);
+      }
+      return value;
+    }
+
+    function readInteger(input, name) {
+      const value = Number(input.value);
+      if (!Number.isInteger(value)) {
+        throw new Error(`${name} 必须是整数`);
+      }
+      return value;
+    }
+
+    function randomInteger(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function randomFloat(min, max, places) {
+      const factor = 10 ** places;
+      return (Math.round((Math.random() * (max - min) + min) * factor) / factor).toFixed(places);
+    }
+
+    function generateRandomNumbers() {
+      const output = document.getElementById('randomOutput');
+      const error = document.getElementById('randomError');
+      error.textContent = '';
+      output.value = '';
+
+      try {
+        const type = document.getElementById('randomNumberType').value;
+        const unique = document.getElementById('randomUnique').checked;
+        const amount = readInteger(document.getElementById('randomCount'), '生成数量');
+        const base = readNumber(document.getElementById('randomBaseValue'), '基准值');
+        const pos = readNumber(document.getElementById('randomPositiveOffset'), '正偏移');
+        const sameOffset = document.getElementById('randomSameOffset').checked;
+        const neg = sameOffset ? pos : readNumber(document.getElementById('randomNegativeOffset'), '负偏移');
+        const min = base - neg;
+        const max = base + pos;
+        const result = [];
+
+        if (amount <= 0) {
+          throw new Error('生成数量必须大于 0');
         }
 
-        // 计算重量
-        function calculateWeight() {
-            const diameter = parseFloat(document.getElementById("diameter").value);
-            const innerDiameter = parseFloat(document.getElementById("inner-diameter").value) || 0;
-            const length = parseFloat(document.getElementById("length").value);
-            const densityInteger = parseFloat(document.getElementById("density-integer").value) || 0;
-            const densityDecimal = parseFloat("0." + (document.getElementById("density-decimal").value || 0));
-            const density = densityInteger + densityDecimal;
+        if (pos < 0 || neg < 0) {
+          throw new Error('偏移值不能小于 0');
+        }
 
-            if (diameter > 0 && length > 0 && density > 0) {
-                const outerRadius = diameter / 20; // 外径转换为 cm
-                const innerRadius = innerDiameter / 20; // 内径转换为 cm
-                const outerVolume = Math.PI * outerRadius * outerRadius * (length / 10); // 外柱体积
-                const innerVolume = Math.PI * innerRadius * innerRadius * (length / 10); // 内孔体积
-                const volume = outerVolume - innerVolume; // 实际体积
-                const weight = volume * density; // 计算重量
-                document.getElementById("weight-result").innerText = `重量: ${weight.toFixed(4)} g`;
+        if (min > max) {
+          throw new Error('范围无效');
+        }
+
+        if (type === 'integer') {
+          const intMin = Math.ceil(min);
+          const intMax = Math.floor(max);
+          const capacity = intMax - intMin + 1;
+
+          if (capacity <= 0) {
+            throw new Error('当前范围内没有可生成的整数');
+          }
+
+          if (unique && amount > capacity) {
+            throw new Error(`唯一整数最多只能生成 ${capacity} 个`);
+          }
+
+          const used = new Set();
+          while (result.length < amount) {
+            const value = randomInteger(intMin, intMax);
+            if (!unique || !used.has(value)) {
+              used.add(value);
+              result.push(String(value));
+            }
+          }
+        } else {
+          const places = readInteger(document.getElementById('randomDecimalPlaces'), '小数点位数');
+
+          if (places < 0 || places > 12) {
+            throw new Error('小数点位数必须在 0 到 12 之间');
+          }
+
+          const factor = 10 ** places;
+          const scaledMin = Math.ceil(min * factor);
+          const scaledMax = Math.floor(max * factor);
+          const capacity = scaledMax - scaledMin + 1;
+
+          if (capacity <= 0) {
+            throw new Error('当前范围内没有可生成的浮点数');
+          }
+
+          if (unique && amount > capacity) {
+            throw new Error(`唯一浮点数最多只能生成 ${capacity} 个`);
+          }
+
+          const used = new Set();
+          while (result.length < amount) {
+            let value;
+            if (unique) {
+              const scaled = randomInteger(scaledMin, scaledMax);
+              value = (scaled / factor).toFixed(places);
             } else {
-                document.getElementById("weight-result").innerText = "重量: 0.0000 g";
+              value = randomFloat(min, max, places);
             }
+
+            if (!unique || !used.has(value)) {
+              used.add(value);
+              result.push(value);
+            }
+          }
         }
 
-        // 计算密度
-        function calculateDensity() {
-            const diameter = parseFloat(document.getElementById("diameter2").value);
-            const innerDiameter = parseFloat(document.getElementById("inner-diameter2").value) || 0;
-            const length = parseFloat(document.getElementById("length2").value);
-            const weight = parseFloat(document.getElementById("weight2").value);
+        output.value = result.join(document.getElementById('randomOutputDirection').value === 'row' ? '\t' : '\n');
+        saveState();
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    }
 
-            if (diameter > 0 && length > 0 && weight > 0) {
-                const outerRadius = diameter / 20; // 外径转换为 cm
-                const innerRadius = innerDiameter / 20; // 内径转换为 cm
-                const outerVolume = Math.PI * outerRadius * outerRadius * (length / 10); // 外柱体积
-                const innerVolume = Math.PI * innerRadius * innerRadius * (length / 10); // 内孔体积
-                const volume = outerVolume - innerVolume; // 实际体积
-                const density = weight / volume; // 计算密度
-                document.getElementById("density-result").innerText = `密度: ${density.toFixed(4)} g/cm³`;
-            } else {
-                document.getElementById("density-result").innerText = "密度: 0.0000 g/cm³";
-            }
-        }
-    </script>
+    tabs.forEach((button) => {
+      button.addEventListener('click', () => switchTab(button.dataset.tab));
+    });
+
+    calcControls.forEach((control) => {
+      control.addEventListener('input', calculateAll);
+    });
+
+    randomControls.forEach((control) => {
+      control.addEventListener('input', syncRandomControls);
+      control.addEventListener('change', syncRandomControls);
+    });
+
+    document.querySelectorAll('[data-reset]').forEach((button) => {
+      button.addEventListener('click', () => resetPanel(button.dataset.reset));
+    });
+
+    document.querySelectorAll('[data-copy-result]').forEach((button) => {
+      button.addEventListener('click', () => copyResult(button.dataset.copyResult));
+    });
+
+    document.getElementById('randomGenerate').addEventListener('click', generateRandomNumbers);
+    document.getElementById('randomCopy').addEventListener('click', () => copyText(document.getElementById('randomOutput').value));
+    document.getElementById('randomClear').addEventListener('click', () => {
+      document.getElementById('randomOutput').value = '';
+      document.getElementById('randomError').textContent = '';
+    });
+
+    loadState();
+    syncRandomControls();
+    calculateAll();
+  </script>
 </body>
 </html>
